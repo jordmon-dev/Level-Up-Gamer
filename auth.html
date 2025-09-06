@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level-Up Gamer - Autenticación</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .auth-tab.active {
+            border-bottom: 3px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        .form-error {
+            color: #ff4444;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .form-input.error {
+            border-color: #ff4444;
+        }
+        
+        .form-input.error + .form-error {
+            display: block;
+        }
+        
+        .duoc-badge {
+            display: inline-block;
+            background-color: var(--accent-green);
+            color: black;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .btn-auth {
+            width: 100%;
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn-auth:hover {
+            background-color: #0e7ae6;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+        }
+        
+        .auth-link {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+        
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header con navegación -->
+    <header class="header">
+        <div class="logo">LEVEL-<span>UP</span> GAMER</div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="store.html" class="nav-link">Productos</a>
+            <a href="content.html?section=about" class="nav-link">Nosotros</a>
+            <a href="content.html?section=blogs" class="nav-link">Blogs</a>
+            <a href="content.html?section=contact" class="nav-link">Contacto</a>
+            <a href="auth.html" class="nav-link active">Login</a>
+            <a href="store.html?view=cart" class="nav-link cart-btn">Carrito <span class="cart-count">0</span></a>
+        </nav>
+        <button class="menu-toggle">☰</button>
+    </header>
+
+    <div class="auth-container">
+        <div class="auth-tabs">
+            <div class="auth-tab active" id="login-tab">Iniciar Sesión</div>
+            <div class="auth-tab" id="register-tab">Registrarse</div>
+        </div>
+        
+        <form id="login-form" class="auth-form active">
+            <div class="form-group">
+                <label for="login-email" class="form-label">Correo electrónico</label>
+                <input type="email" id="login-email" class="form-input" required>
+                <div class="form-error" id="login-email-error">Por favor ingresa un correo válido</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="login-password" class="form-label">Contraseña</label>
+                <div class="password-container">
+                    <input type="password" id="login-password" class="form-input" required>
+                    <button type="button" class="password-toggle" id="login-password-toggle">👁️</button>
+                </div>
+                <div class="form-error" id="login-password-error">La contraseña es requerida</div>
+            </div>
+            
+            <button type="submit" class="btn-auth">Ingresar</button>
+            
+            <div class="auth-footer">
+                ¿No tienes cuenta? <a href="#" class="auth-link" id="go-to-register">Regístrate aquí</a>
+            </div>
+        </form>
+        
+        <form id="register-form" class="auth-form">
+            <div class="form-group">
+                <label for="register-email" class="form-label">Correo electrónico</label>
+                <input type="email" id="register-email" class="form-input" required>
+                <div class="form-error" id="register-email-error">Solo se permiten correos @duoc.cl, @profesor.duoc.cl y @gmail.com</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="register-password" class="form-label">Contraseña (4-10 caracteres)</label>
+                <div class="password-container">
+                    <input type="password" id="register-password" class="form-input" required>
+                    <button type="button" class="password-toggle" id="register-password-toggle">👁️</button>
+                </div>
+                <div class="form-error" id="register-password-error">La contraseña debe tener entre 4 y 10 caracteres</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="register-birthdate" class="form-label">Fecha de nacimiento</label>
+                <input type="date" id="register-birthdate" class="form-input" required>
+                <div class="form-error" id="register-birthdate-error">Debes ser mayor de 18 años para registrarte</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="register-referral" class="form-label">Código de referido (opcional)</label>
+                <input type="text" id="register-referral" class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" id="register-terms" required>
+                    Acepto los términos y condiciones
+                </label>
+                <div class="form-error" id="register-terms-error">Debes aceptar los términos y condiciones</div>
+            </div>
+            
+            <button type="submit" class="btn-auth">Registrarse</button>
+            
+            <div class="auth-footer">
+                ¿Ya tienes cuenta? <a href="#" class="auth-link" id="go-to-login">Inicia sesión aquí</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2023 Level-Up Gamer. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
