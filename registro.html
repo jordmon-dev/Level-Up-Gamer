@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro - Level-Up Gamer</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Estilos personalizados -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">
+        <i class="fas fa-gamepad me-2"></i>LEVEL-UP GAMER
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="productos.html">Productos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="nosotros.html">Nosotros</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="blogs.html">Blogs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="contacto.html">Contacto</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="login.html">
+              <i class="fas fa-user me-1"></i>Login
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="carrito.html">
+              <i class="fas fa-shopping-cart me-1"></i>
+              <span id="cart-count" class="badge bg-danger">0</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido Principal -->
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title text-center mb-4">Crear Cuenta</h2>
+            
+            <form id="registro-form" onsubmit="validarRegistro(event)">
+              <div class="row">
+                <!-- RUN -->
+                <div class="col-md-6 mb-3">
+                  <label for="run" class="form-label">RUN (sin puntos ni guión)</label>
+                  <input type="text" class="form-control" id="run" name="run" required 
+                         minlength="7" maxlength="9" pattern="[0-9kK]+">
+                  <div class="form-text">Ej: 12345678K (7-9 caracteres)</div>
+                  <div id="run-error" class="text-danger"></div>
+                </div>
+
+                <!-- Fecha Nacimiento -->
+                <div class="col-md-6 mb-3">
+                  <label for="fecha-nacimiento" class="form-label">Fecha de Nacimiento</label>
+                  <input type="date" class="form-control" id="fecha-nacimiento" name="fecha-nacimiento">
+                  <div id="edad-error" class="text-danger"></div>
+                </div>
+              </div>
+
+              <div class="row">
+                <!-- Nombres -->
+                <div class="col-md-6 mb-3">
+                  <label for="nombres" class="form-label">Nombres</label>
+                  <input type="text" class="form-control" id="nombres" name="nombres" required maxlength="50">
+                  <div id="nombres-error" class="text-danger"></div>
+                </div>
+
+                <!-- Apellidos -->
+                <div class="col-md-6 mb-3">
+                  <label for="apellidos" class="form-label">Apellidos</label>
+                  <input type="text" class="form-control" id="apellidos" name="apellidos" required maxlength="100">
+                  <div id="apellidos-error" class="text-danger"></div>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+                <div class="form-text">Solo se permiten correos @duoc.cl, @profesor.duoc.cl y @gmail.com</div>
+                <div id="email-error" class="text-danger"></div>
+              </div>
+
+              <div class="row">
+                <!-- Contraseña -->
+                <div class="col-md-6 mb-3">
+                  <label for="password" class="form-label">Contraseña</label>
+                  <input type="password" class="form-control" id="password" name="password" required 
+                         minlength="4" maxlength="10">
+                  <div class="form-text">4-10 caracteres</div>
+                  <div id="password-error" class="text-danger"></div>
+                </div>
+
+                <!-- Confirmar Contraseña -->
+                <div class="col-md-6 mb-3">
+                  <label for="confirm-password" class="form-label">Confirmar Contraseña</label>
+                  <input type="password" class="form-control" id="confirm-password" name="confirm-password" required>
+                  <div id="confirm-password-error" class="text-danger"></div>
+                </div>
+              </div>
+
+              <div class="row">
+                <!-- Región -->
+                <div class="col-md-6 mb-3">
+                  <label for="region" class="form-label">Región</label>
+                  <select class="form-select" id="region" name="region" required onchange="cargarComunas()">
+                    <option value="">Selecciona una región</option>
+                  </select>
+                  <div id="region-error" class="text-danger"></div>
+                </div>
+
+                <!-- Comuna -->
+                <div class="col-md-6 mb-3">
+                  <label for="comuna" class="form-label">Comuna</label>
+                  <select class="form-select" id="comuna" name="comuna" required>
+                    <option value="">Selecciona una comuna</option>
+                  </select>
+                  <div id="comuna-error" class="text-danger"></div>
+                </div>
+              </div>
+
+              <!-- Dirección -->
+              <div class="mb-3">
+                <label for="direccion" class="form-label">Dirección</label>
+                <textarea class="form-control" id="direccion" name="direccion" rows="2" required maxlength="300"></textarea>
+                <div id="direccion-error" class="text-danger"></div>
+              </div>
+
+              <!-- Términos y Condiciones -->
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="terminos" required>
+                <label class="form-check-label" for="terminos">
+                  Acepto los <a href="#">términos y condiciones</a> y confirmo que soy mayor de 18 años
+                </label>
+                <div id="terminos-error" class="text-danger"></div>
+              </div>
+
+              <!-- Botón de Submit -->
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-user-plus me-2"></i>Crear Cuenta
+              </button>
+            </form>
+
+            <!-- Enlace a Login -->
+            <div class="text-center mt-3">
+              <p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-light py-4 mt-5">
+    <div class="container text-center">
+      <p>&copy; 2024 Level-Up Gamer - Todos los derechos reservados</p>
+      <div class="social-links">
+        <a href="#" class="text-light mx-2"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="text-light mx-2"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="text-light mx-2"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/scripts.js"></script>
+  <script src="js/registro.js"></script>
+</body>
+</html>

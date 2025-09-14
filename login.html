@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Level-Up Gamer</title>
+  <title>Login - Level-Up Gamer</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Google Fonts: Orbitron (títulos) y Roboto (texto) -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-  <!-- Font Awesome para íconos -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Estilos personalizados -->
   <link rel="stylesheet" href="css/styles.css">
@@ -26,7 +26,7 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link active" href="index.html">Inicio</a>
+            <a class="nav-link" href="index.html">Inicio</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="productos.html">Productos</a>
@@ -40,11 +40,11 @@
           <li class="nav-item">
             <a class="nav-link" href="contacto.html">Contacto</a>
           </li>
-            <li class="nav-item">
-      <a class="nav-link" href="login.html" id="login-link">
-        <i class="fas fa-user me-1"></i>Login
-      </a>
-    </li>
+          <li class="nav-item">
+  <a class="nav-link" href="login.html" id="login-link">
+    <i class="fas fa-user me-1"></i>Login
+  </a>
+</li>
           <li class="nav-item">
             <a class="nav-link" href="carrito.html">
               <i class="fas fa-shopping-cart me-1"></i>
@@ -56,26 +56,53 @@
     </div>
   </nav>
 
-  <!-- Aquí va el contenido específico de cada página -->
+  <!-- Contenido Principal -->
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title text-center mb-4">Iniciar Sesión</h2>
+            
+            <form id="login-form" onsubmit="validarLogin(event)">
+              <!-- Email -->
+              <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+                <div class="form-text">Solo se permiten correos @duoc.cl, @profesor.duoc.cl y @gmail.com</div>
+                <div id="email-error" class="text-danger"></div>
+              </div>
 
-<!-- Hero Section -->
-<section class="hero-section bg-dark py-5">
-  <div class="container text-center py-5">
-    <h1 class="display-4 fw-bold mb-4">LEVEL-UP GAMER</h1>
-    <p class="lead mb-4">Todo lo que necesitas para llevar tu experiencia gaming al siguiente nivel</p>
-    <a href="productos.html" class="btn btn-primary btn-lg">Explorar Productos</a>
-  </div>
-</section>
+              <!-- Contraseña -->
+              <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" name="password" required minlength="4" maxlength="10">
+                <div class="form-text">La contraseña debe tener entre 4 y 10 caracteres</div>
+                <div id="password-error" class="text-danger"></div>
+              </div>
 
-<!-- Productos Destacados -->
-<section class="py-5">
-  <div class="container">
-    <h2 class="text-center mb-5">Productos Destacados</h2>
-    <div class="row" id="productos-destacados">
-      <!-- Los productos se cargarán con JavaScript -->
+              <!-- Recordarme -->
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="remember">
+                <label class="form-check-label" for="remember">Recordar mi sesión</label>
+              </div>
+
+              <!-- Botón de Submit -->
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-sign-in-alt me-2"></i>Ingresar
+              </button>
+            </form>
+
+            <!-- Enlaces adicionales -->
+            <div class="text-center mt-3">
+              <p>¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+              <p><a href="#">¿Olvidaste tu contraseña?</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</section>
 
   <!-- Footer -->
   <footer class="bg-dark text-light py-4 mt-5">
@@ -89,9 +116,9 @@
     </div>
   </footer>
 
-  <!-- Bootstrap JS -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- JavaScript personalizado -->
   <script src="js/scripts.js"></script>
+  <script src="js/login.js"></script>
 </body>
 </html>
