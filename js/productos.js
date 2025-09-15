@@ -106,3 +106,69 @@ document.addEventListener('DOMContentLoaded', function() {
   actualizarCarrito();
   mostrarProductos();
 });
+
+// js/productos.js - Funciones específicas de la página de productos
+
+console.log('✅ Productos.js cargado');
+
+// Mostrar todos los productos
+function mostrarProductos(productosArray = productos) {
+    const container = document.getElementById('lista-productos');
+    if (!container) return;
+
+    console.log('📦 Mostrando productos:', productosArray.length);
+    
+    container.innerHTML = productosArray.map(producto => `
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="${producto.imagen}" class="card-img-top" alt="${producto.nombre}">
+                <div class="card-body">
+                    <h5 class="card-title">${producto.nombre}</h5>
+                    <p class="text-muted">${producto.categoria}</p>
+                    <p class="price">$${producto.precio.toLocaleString('es-CL')} CLP</p>
+                    <p class="card-text">${producto.descripcion}</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="agregarAlCarrito(${producto.id})">
+                            <i class="fas fa-cart-plus me-2"></i>Agregar al carrito
+                        </button>
+                        <button class="btn btn-outline-light" onclick="verDetalle(${producto.id})">
+                            <i class="fas fa-eye me-2"></i>Ver detalle
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Filtrar productos por búsqueda y categoría
+function filtrarProductos() {
+    const textoBusqueda = document.getElementById('buscador').value.toLowerCase();
+    const categoriaSeleccionada = document.getElementById('filtro-categoria').value;
+
+    const productosFiltrados = productos.filter(producto => {
+        const coincideTexto = producto.nombre.toLowerCase().includes(textoBusqueda) ||
+                             producto.descripcion.toLowerCase().includes(textoBusqueda);
+        const coincideCategoria = categoriaSeleccionada === '' || producto.categoria === categoriaSeleccionada;
+        
+        return coincideTexto && coincideCategoria;
+    });
+
+    console.log('🔍 Productos filtrados:', productosFiltrados.length);
+    mostrarProductos(productosFiltrados);
+}
+
+// Ver detalle del producto
+function verDetalle(id) {
+    console.log('👀 Viendo detalle producto ID:', id);
+    localStorage.setItem('productoSeleccionado', id);
+    alert('Función de detalle de producto en desarrollo');
+    // window.location.href = 'detalle-producto.html';
+}
+
+// Inicializar página de productos
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🛍️ Inicializando página de productos');
+    actualizarCarrito();
+    mostrarProductos();
+});
