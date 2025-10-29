@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+// src/App.jsx
+import React, { useState, useEffect } from 'react'; // Asegúrate de importar useState y useEffect
 import { Routes, Route } from 'react-router-dom';
+
+// Importaciones de componentes y páginas públicas
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -7,26 +10,72 @@ import ProductosPage from './pages/ProductosPage';
 import LoginPage from './pages/LoginPage';
 import RegistroPage from './pages/RegistroPage';
 import CarritoPage from './pages/CarritoPage';
-import { productos as allProducts } from './data'; // Renombramos para claridad
 import ContactoPage from './pages/ContactoPage';
 import NosotrosPage from './pages/NosotrosPage';
 import BlogsPage from './pages/BlogsPage';
 import ProductoDetallePage from './pages/ProductoDetallePage';
+
+// Importaciones de componentes y páginas del Admin
 import AdminLayout from './admin/components/AdminLayout';
 import AdminDashboardPage from './admin/pages/AdminDashboardPage';
 import AdminProductosPage from './admin/pages/AdminProductosPage';
+// (Aquí puedes importar las otras páginas del admin si las creaste)
+
+// Importación de datos (si es necesario aquí, aunque agregarAlCarrito debería usarla)
+import { productos as allProducts } from './data'; 
 
 function App() {
-  // ... (estado y funciones del carrito) ...
+  // --- Estado Global del Carrito --- << ¡ESTA PARTE FALTABA! ---
+  const [carrito, setCarrito] = useState([]);
+
+  // Cargar carrito desde localStorage al iniciar la app
+  useEffect(() => {
+    const carritoGuardado = JSON.parse(localStorage.getItem('carrito') || '[]');
+    setCarrito(carritoGuardado);
+  }, []);
+
+  // Guardar carrito en localStorage cada vez que cambie
+  useEffect(() => {
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+  }, [carrito]);
+
+  // --- Función para Añadir al Carrito ---
+  const agregarAlCarrito = (productoId) => {
+    const productoToAdd = allProducts.find(p => p.id === productoId);
+    if (productoToAdd) {
+      // Creamos una copia sin la propiedad 'cantidad' si existe (viene de agrupar)
+      const { cantidad, ...productoBase } = productoToAdd; 
+      setCarrito(prevCarrito => [...prevCarrito, productoBase]); // Añadimos el producto base
+      console.log(`${productoToAdd.nombre} añadido al carrito!`);
+      actualizarContadorNavbar(carrito.length + 1);
+    } else {
+      console.error("Producto no encontrado:", productoId);
+    }
+  };
+
+  // --- Función para actualizar contador ---
+  const actualizarContadorNavbar = (cantidad) => {
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement) {
+      cartCountElement.textContent = cantidad;
+    }
+  };
+
+  // Actualiza el contador al cargar y cuando cambia el carrito
+  useEffect(() => {
+    actualizarContadorNavbar(carrito.length);
+  }, [carrito]);
+  // --- FIN DE LA LÓGICA DEL CARRITO ---
 
   return (
-    // Quitamos Navbar y Footer de aquí
     <Routes>
       {/* Rutas Públicas (usan Navbar y Footer) */}
       <Route path="/" element={
         <>
-          <Navbar cantidadCarrito={carrito.length} />
-          <HomePage agregarAlCarrito={agregarAlCarrito} />
+          {/* Ahora 'carrito' sí está definido */}
+          <Navbar cantidadCarrito={carrito.length} /> 
+          {/* Ahora 'agregarAlCarrito' sí está definido */}
+          <HomePage agregarAlCarrito={agregarAlCarrito} /> 
           <Footer />
         </>
       } />
@@ -61,6 +110,7 @@ function App() {
       <Route path="/carrito" element={
          <>
           <Navbar cantidadCarrito={carrito.length} />
+           {/* Ahora 'carrito' y 'setCarrito' sí están definidos */}
           <CarritoPage carritoGlobal={carrito} setCarritoGlobal={setCarrito} />
           <Footer />
         </>
@@ -89,17 +139,13 @@ function App() {
 
       {/* Rutas de Administración (usan AdminLayout) */}
       <Route path="/admin" element={<AdminLayout />}>
-        {/* Ruta índice (ej: /admin o /admin/dashboard) */}
         <Route index element={<AdminDashboardPage />} /> 
         <Route path="dashboard" element={<AdminDashboardPage />} />
         <Route path="productos" element={<AdminProductosPage />} />
-        {/* <Route path="ordenes" element={<AdminOrdenesPage />} /> */}
-        {/* <Route path="usuarios" element={<AdminUsuariosPage />} /> */}
-        {/* <Route path="categorias" element={<AdminCategoriasPage />} /> */}
+        {/* (Otras rutas admin...) */}
       </Route>
 
-       {/* Opcional: Ruta para página no encontrada */}
-       {/* <Route path="*" element={<NotFoundPage />} /> */}
+       {/* (Ruta NotFound opcional...) */}
 
     </Routes>
   );

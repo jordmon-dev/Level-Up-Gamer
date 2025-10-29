@@ -1,7 +1,7 @@
 // src/admin/components/AdminLayout.jsx
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom'; // Outlet es donde se renderizarán las sub-rutas
-import './AdminLayout.css'; // Crearemos este CSS luego
+import './AdminLayout.css'; // Importamos el CSS
 
 function AdminLayout() {
   return (
@@ -21,16 +21,19 @@ function AdminLayout() {
             </Link>
           </li>
           <li className="nav-item">
-            <Link className="nav-link" to="/admin/ordenes">
+            {/* Cambiaremos este enlace cuando creemos la página */}
+            <Link className="nav-link" to="/admin/ordenes"> 
               <i className="fas fa-file-invoice me-2"></i>Órdenes
             </Link>
           </li>
           <li className="nav-item">
+             {/* Cambiaremos este enlace cuando creemos la página */}
             <Link className="nav-link" to="/admin/usuarios">
               <i className="fas fa-users me-2"></i>Usuarios
             </Link>
           </li>
           <li className="nav-item">
+             {/* Cambiaremos este enlace cuando creemos la página */}
             <Link className="nav-link" to="/admin/categorias">
               <i className="fas fa-tags me-2"></i>Categorías
             </Link>
@@ -46,7 +49,7 @@ function AdminLayout() {
 
       {/* Área de Contenido Principal */}
       <main className="admin-main-content">
-        {/* Aquí se renderizará el contenido de cada sub-ruta (Dashboard, Productos, etc.) */}
+        {/* Aquí se renderizará el contenido de cada sub-ruta */}
         <Outlet /> 
       </main>
     </div>
