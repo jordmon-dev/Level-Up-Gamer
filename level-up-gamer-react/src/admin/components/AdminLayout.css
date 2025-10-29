@@ -1,0 +1,48 @@
+/* src/admin/components/AdminLayout.css */
+.admin-layout {
+  display: flex;
+  min-height: 100vh; /* Ocupa toda la altura */
+}
+
+.admin-sidebar {
+  width: 250px;
+  background-color: #212529; /* bg-dark de Bootstrap */
+  padding: 15px;
+  position: fixed; /* Fijo en la pantalla */
+  top: 0;
+  left: 0;
+  height: 100%;
+  overflow-y: auto; /* Scroll si el menú es muy largo */
+}
+
+.admin-sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.75); /* Color de texto más suave */
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+}
+
+.admin-sidebar .nav-link:hover,
+.admin-sidebar .nav-link.active { /* Estilo para link activo (lo haremos funcionar luego) */
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-main-content {
+  margin-left: 250px; /* Deja espacio para el sidebar */
+  padding: 30px;
+  flex-grow: 1; /* Ocupa el resto del espacio */
+  background-color: #f8f9fa; /* Fondo claro para el contenido */
+  color: #212529; /* Texto oscuro para el contenido */
+}
+
+/* Ajustes para pantallas pequeñas (opcional) */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative; /* No fijo en móviles */
+  }
+  .admin-main-content {
+    margin-left: 0;
+  }
+}

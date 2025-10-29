@@ -4,11 +4,10 @@ import { Link } from 'react-router-dom';
 // Recibimos 'producto' como una "prop"
 function ProductoCard({ producto }) {
   
-  // (Por ahora, las imágenes no cargarán, lo arreglaremos luego)
   const imageUrl = producto.imagen.startsWith('http') 
-    ? producto.imagen 
-    : `/img/${producto.imagen.split('/').pop()}`;
-
+  ? producto.imagen 
+  : `/${producto.imagen}`; // Ejemplo: Convierte "img/ps5.jpg" a "/img/ps5.jpg"
+  
   return (
     <div className="col-md-3 mb-4">
       <div className="card h-100 product-card">

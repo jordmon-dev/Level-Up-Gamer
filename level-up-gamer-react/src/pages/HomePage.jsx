@@ -1,4 +1,3 @@
-// src/pages/HomePage.jsx
 import { Link } from 'react-router-dom';
 import { productos } from '../data.js'; // Importamos nuestros productos
 import ProductoCard from '../components/ProductoCard'; // Importamos la tarjeta
