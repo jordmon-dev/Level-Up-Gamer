@@ -1,9 +1,7 @@
-{
-  "devDependencies": {
-    "jasmine-core": "^5.12.1",
-    "karma": "^6.4.4",
-    "karma-chrome-launcher": "^3.2.0",
-    "karma-jasmine": "^5.1.0",
-    "karma-vite": "^1.0.5"
-  }
-}
+"scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview",
+  "test": "karma start" 
+},
