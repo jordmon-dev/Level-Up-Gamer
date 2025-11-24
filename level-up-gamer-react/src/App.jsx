@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'; 
 import { Routes, Route } from 'react-router-dom';
 
+// Imports Públicos
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -16,31 +17,55 @@ import ProductoDetallePage from './pages/ProductoDetallePage';
 import CheckoutPage from './pages/CheckoutPage';
 import CompraExitosaPage from './pages/CompraExitosaPage';
 
+// Imports Admin
 import AdminLayout from './admin/components/AdminLayout';
 import AdminDashboardPage from './admin/pages/AdminDashboardPage';
 import AdminProductosPage from './admin/pages/AdminProductosPage';
 import AdminProductoFormPage from './admin/pages/AdminProductoFormPage';
+import AdminOrdenesPage from './admin/pages/AdminOrdenesPage'; // <<-- NUEVO IMPORT
 
 import { productos as initialProducts } from './data'; 
 
 function App() {
+  // --- ESTADOS GLOBALES ---
   const [carrito, setCarrito] = useState([]);
-  // Estado global de productos (inicia con los datos de data.js)
   const [productos, setProductos] = useState(initialProducts);
+  const [usuario, setUsuario] = useState(null);
+  const [ordenes, setOrdenes] = useState([]); // <<-- ESTADO DE ÓRDENES
 
+  // --- CARGA INICIAL (LocalStorage) ---
   useEffect(() => {
     const carritoGuardado = JSON.parse(localStorage.getItem('carrito') || '[]');
+    const usuarioGuardado = JSON.parse(localStorage.getItem('usuarioLogueado'));
+    const ordenesGuardadas = JSON.parse(localStorage.getItem('ordenes') || '[]'); // Cargar órdenes
+    
     setCarrito(carritoGuardado);
+    if (usuarioGuardado) setUsuario(usuarioGuardado);
+    setOrdenes(ordenesGuardadas);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    actualizarContadorNavbar(carrito.length);
-  }, [carrito]);
+  // --- PERSISTENCIA (Guardar cambios) ---
+  useEffect(() => { localStorage.setItem('carrito', JSON.stringify(carrito)); }, [carrito]);
+  
+  useEffect(() => { 
+    localStorage.setItem('ordenes', JSON.stringify(ordenes)); // Guardar órdenes
+  }, [ordenes]);
 
-  // --- CRUD PRODUCTOS ---
+  // --- LÓGICA DE USUARIO ---
+  const login = (datosUsuario) => {
+    setUsuario(datosUsuario);
+    localStorage.setItem('usuarioLogueado', JSON.stringify(datosUsuario));
+  };
+
+  const logout = () => {
+    setUsuario(null);
+    localStorage.removeItem('usuarioLogueado');
+    window.location.href = "/";
+  };
+
+  // --- LÓGICA DE PRODUCTOS (CRUD) ---
   const agregarProducto = (nuevo) => {
-    const productoConId = { ...nuevo, id: Date.now() }; // ID temporal único
+    const productoConId = { ...nuevo, id: Date.now() };
     setProductos([...productos, productoConId]);
   };
 
@@ -51,8 +76,8 @@ function App() {
   const eliminarProducto = (id) => {
     setProductos(productos.filter(p => p.id !== id));
   };
-  // ----------------------
 
+  // --- LÓGICA DE CARRITO ---
   const agregarAlCarrito = (id) => {
     const producto = productos.find(p => p.id === id);
     if (producto && producto.stock > 0) {
@@ -68,35 +93,42 @@ function App() {
     localStorage.removeItem('carrito');
   };
 
-  const actualizarContadorNavbar = (num) => {
-    const el = document.getElementById('cart-count');
-    if (el) el.textContent = num;
+  // --- LÓGICA DE ÓRDENES (NUEVO) ---
+  const agregarOrden = (nuevaOrden) => {
+    setOrdenes(prev => [nuevaOrden, ...prev]); // Agrega la nueva orden al principio de la lista
   };
 
   return (
     <Routes>
-      {/* Tienda Pública - Pasamos 'productos' como prop */}
-      <Route path="/" element={<><Navbar cantidadCarrito={carrito.length} /><HomePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
-      <Route path="/productos" element={<><Navbar cantidadCarrito={carrito.length} /><ProductosPage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
-      <Route path="/producto/:id" element={<><Navbar cantidadCarrito={carrito.length} /><ProductoDetallePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
+      {/* RUTAS PÚBLICAS */}
+      <Route path="/" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><HomePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
+      <Route path="/productos" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><ProductosPage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
+      <Route path="/producto/:id" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><ProductoDetallePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
       
-      {/* Rutas Estándar */}
-      <Route path="/login" element={<><Navbar cantidadCarrito={carrito.length} /><LoginPage /><Footer /></>} />
-      <Route path="/registro" element={<><Navbar cantidadCarrito={carrito.length} /><RegistroPage /><Footer /></>} />
-      <Route path="/carrito" element={<><Navbar cantidadCarrito={carrito.length} /><CarritoPage /><Footer /></>} />
-      <Route path="/checkout" element={<><Navbar cantidadCarrito={carrito.length} /><CheckoutPage carrito={carrito} vaciarCarrito={vaciarCarrito} /><Footer /></>} />
-      <Route path="/compra-exitosa" element={<><Navbar cantidadCarrito={carrito.length} /><CompraExitosaPage /><Footer /></>} />
-      <Route path="/contacto" element={<><Navbar cantidadCarrito={carrito.length} /><ContactoPage /><Footer /></>} />
-      <Route path="/nosotros" element={<><Navbar cantidadCarrito={carrito.length} /><NosotrosPage /><Footer /></>} />
-      <Route path="/blogs" element={<><Navbar cantidadCarrito={carrito.length} /><BlogsPage /><Footer /></>} />
+      <Route path="/login" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><LoginPage login={login} /><Footer /></>} />
+      <Route path="/registro" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><RegistroPage /><Footer /></>} />
+      <Route path="/carrito" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><CarritoPage /><Footer /></>} />
+      
+      {/* CHECKOUT: Ahora recibe 'agregarOrden' */}
+      <Route path="/checkout" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><CheckoutPage carrito={carrito} vaciarCarrito={vaciarCarrito} usuario={usuario} agregarOrden={agregarOrden} /><Footer /></>} />
+      
+      <Route path="/compra-exitosa" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><CompraExitosaPage /><Footer /></>} />
+      <Route path="/contacto" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><ContactoPage /><Footer /></>} />
+      <Route path="/nosotros" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><NosotrosPage /><Footer /></>} />
+      <Route path="/blogs" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><BlogsPage /><Footer /></>} />
 
-      {/* Rutas Admin */}
+      {/* RUTAS ADMIN */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboardPage />} /> 
         <Route path="dashboard" element={<AdminDashboardPage />} />
+        
+        {/* Productos */}
         <Route path="productos" element={<AdminProductosPage productos={productos} eliminarProducto={eliminarProducto} />} />
         <Route path="productos/nuevo" element={<AdminProductoFormPage productos={productos} agregarProducto={agregarProducto} />} />
         <Route path="productos/editar/:id" element={<AdminProductoFormPage productos={productos} editarProducto={editarProducto} />} />
+        
+        {/* Órdenes (NUEVO) */}
+        <Route path="ordenes" element={<AdminOrdenesPage ordenes={ordenes} />} />
       </Route>
     </Routes>
   );
