@@ -1,39 +1,35 @@
 import { Link } from 'react-router-dom';
-import { productos } from '../data.js'; // Importamos nuestros productos
-import ProductoCard from '../components/ProductoCard'; // Importamos la tarjeta
 
-function HomePage() {
-
-  // Filtramos los productos que son "destacados"
-  const productosDestacados = productos.filter(p => p.destacado);
+// Recibimos 'productos' por props
+function HomePage({ productos, agregarAlCarrito }) {
+  const destacados = productos.filter(p => p.destacado);
 
   return (
     <div>
-      {/* Hero Section (tomado de index.html) */}
-      <section className="hero-section bg-dark py-5">
-        <div className="container text-center py-5">
-          <h1 className="display-4 fw-bold mb-4">LEVEL-UP GAMER</h1>
-          <p className="lead mb-4">Todo lo que necesitas para llevar tu experiencia gaming al siguiente nivel</p>
-          <Link to="/productos" className="btn btn-primary btn-lg">Explorar Productos</Link>
-        </div>
+      <section className="hero-section bg-dark py-5 text-white text-center">
+        <h1 className="display-4 fw-bold">LEVEL-UP GAMER</h1>
+        <p className="lead">Lleva tu experiencia al siguiente nivel</p>
+        <Link to="/productos" className="btn btn-primary btn-lg">Ver Productos</Link>
       </section>
 
-      {/* Productos Destacados (tomado de index.html) */}
-      <section className="py-5">
-        <div className="container">
-          <h2 className="text-center mb-5">Productos Destacados</h2>
-          <div className="row">
-            {/* Aquí "mapeamos" (recorremos) el array de productos destacados
-              y creamos un componente ProductoCard por cada uno.
-            */}
-            {productosDestacados.map(producto => (
-              <ProductoCard key={producto.id} producto={producto} />
-            ))}
-          </div>
+      <section className="py-5 container">
+        <h2 className="text-center mb-5">Destacados</h2>
+        <div className="row">
+          {destacados.map(p => (
+            <div className="col-md-3 mb-4" key={p.id}>
+              <div className="card h-100">
+                <img src={p.imagen.startsWith('http') ? p.imagen : `/${p.imagen}`} className="card-img-top" alt={p.nombre} onError={(e) => e.target.src='https://via.placeholder.com/300'} />
+                <div className="card-body">
+                  <h5>{p.nombre}</h5>
+                  <p className="fw-bold">${p.precio.toLocaleString('es-CL')}</p>
+                  <button className="btn btn-primary w-100" onClick={() => agregarAlCarrito(p.id)}>Añadir</button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </div>
   );
 }
-
 export default HomePage;
