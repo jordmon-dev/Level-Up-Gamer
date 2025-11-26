@@ -40,7 +40,7 @@ public class SecurityConfig {
                 // Rutas Públicas (Cualquiera puede entrar)
                 .requestMatchers("/auth/**").permitAll() // Login y Registro
                 .requestMatchers("/api/productos/**").permitAll() // Ver productos (por ahora público)
-                .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll() // Swagger
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 // Todo lo demás requiere autenticación
                 .anyRequest().authenticated()
             )

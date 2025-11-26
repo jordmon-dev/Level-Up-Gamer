@@ -1,14 +1,31 @@
 // src/admin/pages/AdminProductosPage.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { productos } from '../../data'; // Importamos los productos desde src/data.js
+import { deleteProduct } from '../../services/ProductService'; // Importamos el servicio
 
-function AdminProductosPage() {
+function AdminProductosPage({ productos, recargarProductos }) {
+  
+  const handleEliminar = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar este producto de la Base de Datos?')) {
+      try {
+        // Llamada DELETE al servidor
+        await deleteProduct(id);
+        alert('Producto eliminado correctamente');
+        
+        // Recargar la lista visual
+        if (recargarProductos) recargarProductos();
+        
+      } catch (error) {
+        console.error("Error al eliminar:", error);
+        alert("Error al eliminar el producto.");
+      }
+    }
+  };
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Gestión de Productos</h2>
-        {/* Enlace para añadir nuevo producto (lo haremos después) */}
+        <h2>Gestión de Productos (BD Real)</h2>
         <Link to="/admin/productos/nuevo" className="btn btn-primary">
           <i className="fas fa-plus me-2"></i>Añadir Producto
         </Link>
@@ -16,55 +33,54 @@ function AdminProductosPage() {
 
       <div className="card shadow-sm">
         <div className="card-body">
-          <table className="table table-hover table-striped"> {/* Clases de Bootstrap para tabla */}
-            <thead className="table-dark">
-              <tr>
-                <th>ID</th>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* Mapeamos los productos para crear las filas */}
-              {productos.map(producto => (
-                <tr key={producto.id}>
-                  <td>{producto.id}</td>
-                  <td>{producto.codigo || 'N/A'}</td>
-                  <td>{producto.nombre}</td>
-                  <td>{producto.categoria}</td>
-                  <td>${producto.precio.toLocaleString('es-CL')}</td>
-                  <td className={producto.stock <= 5 ? 'text-danger fw-bold' : ''}> {/* Resaltar stock bajo */}
-                    {producto.stock !== undefined ? producto.stock : 'N/A'}
-                  </td>
-                  <td>
-                    {/* Enlaces para editar/eliminar (los haremos después) */}
-                    <Link 
-                      to={`/admin/productos/editar/${producto.id}`} 
-                      className="btn btn-sm btn-outline-warning me-2"
-                      title="Editar"
-                    >
-                      <i className="fas fa-edit"></i>
-                    </Link>
-                    <button 
-                      className="btn btn-sm btn-outline-danger" 
-                      title="Eliminar"
-                      // onClick={() => handleEliminar(producto.id)} // Añadiremos esta función luego
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </td>
+          <div className="table-responsive">
+            <table className="table table-hover align-middle">
+              <thead className="table-dark">
+                <tr>
+                  <th>ID</th>
+                  <th>Imagen</th>
+                  <th>Nombre</th>
+                  <th>Categoría</th>
+                  <th>Precio</th>
+                  <th>Stock</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {productos.map(p => (
+                  <tr key={p.id}>
+                    <td>{p.id}</td>
+                    <td>
+                      <img 
+                        src={p.imagen && p.imagen.startsWith('http') ? p.imagen : `/${p.imagen}`} 
+                        alt="img" 
+                        width="40" 
+                        height="40"
+                        className="rounded"
+                        onError={(e) => e.target.src='https://via.placeholder.com/40'} 
+                      />
+                    </td>
+                    <td>{p.nombre}</td>
+                    <td>{p.categoria}</td>
+                    <td>${p.precio.toLocaleString('es-CL')}</td>
+                    <td className={p.stock < 5 ? 'text-danger fw-bold' : ''}>{p.stock}</td>
+                    <td>
+                      <Link to={`/admin/productos/editar/${p.id}`} className="btn btn-sm btn-warning me-2">
+                        <i className="fas fa-edit"></i>
+                      </Link>
+                      <button onClick={() => handleEliminar(p.id)} className="btn btn-sm btn-danger">
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         {productos.length === 0 && (
             <div className="card-footer text-center text-muted">
-                No hay productos para mostrar.
+                No hay productos. ¡Agrega uno nuevo!
             </div>
         )}
       </div>

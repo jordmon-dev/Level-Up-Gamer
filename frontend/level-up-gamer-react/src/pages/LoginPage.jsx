@@ -1,82 +1,41 @@
 // src/pages/LoginPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { loginUser } from '../services/AuthService'; // Importamos el servicio real
 
-// Recibimos la función 'login' desde App.jsx para actualizar el estado global
 function LoginPage({ login }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Verificar si ya hay sesión al cargar
   useEffect(() => {
-    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
-    if (usuarioLogueado) {
-      navigate('/'); // Si ya está logueado, redirigir al inicio
+    if (localStorage.getItem('usuarioLogueado')) {
+      navigate('/');
     }
   }, [navigate]);
 
-  const validarEmail = (emailInput) => {
-    const dominiosPermitidos = ['@duoc.cl', '@profesor.duoc.cl', '@gmail.com'];
-    return dominiosPermitidos.some(dominio => emailInput.endsWith(dominio));
-  };
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-  const handleLoginSubmit = (event) => {
-    event.preventDefault();
-    setEmailError('');
-    setPasswordError('');
-
-    let esValido = true;
-
-    if (!validarEmail(email)) {
-      setEmailError('Ingresa un correo válido (@duoc.cl, @profesor.duoc.cl o @gmail.com)');
-      esValido = false;
-    }
-
-    if (password.length < 4 || password.length > 10) {
-      setPasswordError('La contraseña debe tener entre 4 y 10 caracteres');
-      esValido = false;
-    }
-
-    if (esValido) {
-      procesarLogin(email, password);
-    }
-  };
-
-  const procesarLogin = (emailInput, passwordInput) => {
-    // 1. Buscamos en los usuarios registrados (localStorage)
-    const usuariosRegistrados = JSON.parse(localStorage.getItem('usuariosRegistrados') || '[]');
-    const usuarioEncontrado = usuariosRegistrados.find(u => u.email === emailInput && u.password === passwordInput);
-
-    // 2. Lógica de Login
-    // NOTA: Si el usuario existe, lo usamos. Si no, creamos uno temporal para que el profe pueda probar
-    // sin tener que registrarse obligatoriamente (puedes quitar esto si quieres ser estricto).
-    if (usuarioEncontrado) {
-      // Caso 1: Usuario Real encontrado
-      alert(`¡Bienvenido de nuevo, ${usuarioEncontrado.nombres}!`);
-      login(usuarioEncontrado); // Actualizamos App.jsx
-      navigate('/');
-    } else {
-      // Caso 2: Usuario no encontrado / Login de prueba
-      // Si el email es válido pero no está registrado, permitimos entrar como "Invitado" para no bloquear la evaluación
-      const usuarioInvitado = {
-        email: emailInput,
-        nombres: 'Invitado',
-        apellidos: 'Test',
-        region: '', // Sin región definida
-        comuna: '',
-        timestamp: new Date().getTime()
-      };
+    try {
+      // Llamada al Backend Java
+      const response = await loginUser({ email, password });
       
-      alert('Aviso: Entrando en modo invitado (Usuario no registrado)');
-      login(usuarioInvitado); // Actualizamos App.jsx
-      navigate('/');
+      // Si el backend responde OK, obtenemos token y datos
+      const { token, usuario } = response.data;
       
-      // Si prefieres ser estricto y bloquear si no existe, borra el bloque "else" de arriba y usa este:
-      // setPasswordError('Credenciales incorrectas. Verifica tu correo o contraseña.');
+      // Guardamos en el estado global de la App
+      // Combinamos los datos del usuario con el token necesario para futuras peticiones
+      login({ ...usuario, token });
+      
+      alert(`¡Bienvenido ${usuario.nombre}!`);
+      navigate('/');
+
+    } catch (err) {
+      console.error(err);
+      setError('Credenciales inválidas o error de conexión.');
     }
   };
 
@@ -86,46 +45,34 @@ function LoginPage({ login }) {
         <div className="col-md-6">
           <div className="card shadow">
             <div className="card-body p-4">
-              <h2 className="card-title text-center mb-4">Iniciar Sesión</h2>
+              <h2 className="text-center mb-4">Iniciar Sesión</h2>
+              
+              {error && <div className="alert alert-danger">{error}</div>}
 
               <form onSubmit={handleLoginSubmit}>
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">Correo Electrónico</label>
-                  <input
-                    type="email"
-                    className={`form-control ${emailError ? 'is-invalid' : ''}`}
-                    id="email"
-                    name="email"
+                  <label className="form-label">Email</label>
+                  <input 
+                    type="email" 
+                    className="form-control" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="nombre@duoc.cl"
+                    required 
                   />
-                  {emailError && <div className="invalid-feedback">{emailError}</div>}
                 </div>
-
                 <div className="mb-3">
-                  <label htmlFor="password" className="form-label">Contraseña</label>
-                  <input
-                    type="password"
-                    className={`form-control ${passwordError ? 'is-invalid' : ''}`}
-                    id="password"
-                    name="password"
+                  <label className="form-label">Contraseña</label>
+                  <input 
+                    type="password" 
+                    className="form-control" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    required 
                   />
-                  {passwordError && <div className="invalid-feedback">{passwordError}</div>}
                 </div>
-
-                <div className="mb-3 form-check">
-                  <input type="checkbox" className="form-check-input" id="remember" />
-                  <label className="form-check-label" htmlFor="remember">Recordar mi sesión</label>
-                </div>
-
-                <button type="submit" className="btn btn-primary w-100">
-                  <i className="fas fa-sign-in-alt me-2"></i>Ingresar
-                </button>
+                <button type="submit" className="btn btn-primary w-100">Ingresar</button>
               </form>
-
+              
               <div className="text-center mt-3">
                 <p>¿No tienes cuenta? <Link to="/registro">Regístrate aquí</Link></p>
               </div>

@@ -17,41 +17,52 @@ import ProductoDetallePage from './pages/ProductoDetallePage';
 import CheckoutPage from './pages/CheckoutPage';
 import CompraExitosaPage from './pages/CompraExitosaPage';
 
-// Imports Admin
+// Imports de Seguridad y Admin
+import ProtectedRoute from './components/ProtectedRoute'; // <<-- IMPORTANTE
 import AdminLayout from './admin/components/AdminLayout';
 import AdminDashboardPage from './admin/pages/AdminDashboardPage';
 import AdminProductosPage from './admin/pages/AdminProductosPage';
 import AdminProductoFormPage from './admin/pages/AdminProductoFormPage';
-import AdminOrdenesPage from './admin/pages/AdminOrdenesPage'; // <<-- NUEVO IMPORT
+import AdminOrdenesPage from './admin/pages/AdminOrdenesPage';
 
-import { productos as initialProducts } from './data'; 
+// Servicio para cargar productos
+import { getProducts } from './services/ProductService';
 
 function App() {
   // --- ESTADOS GLOBALES ---
   const [carrito, setCarrito] = useState([]);
-  const [productos, setProductos] = useState(initialProducts);
+  const [productos, setProductos] = useState([]);
   const [usuario, setUsuario] = useState(null);
-  const [ordenes, setOrdenes] = useState([]); // <<-- ESTADO DE ÓRDENES
+  const [ordenes, setOrdenes] = useState([]);
 
-  // --- CARGA INICIAL (LocalStorage) ---
+  // 1. Función para cargar productos desde el Backend
+  const cargarProductos = async () => {
+    try {
+      const response = await getProducts();
+      setProductos(response.data);
+    } catch (error) {
+      console.error("Error cargando productos:", error);
+    }
+  };
+
+  // 2. Carga Inicial
   useEffect(() => {
+    cargarProductos(); // Carga productos de la BD real
+
     const carritoGuardado = JSON.parse(localStorage.getItem('carrito') || '[]');
     const usuarioGuardado = JSON.parse(localStorage.getItem('usuarioLogueado'));
-    const ordenesGuardadas = JSON.parse(localStorage.getItem('ordenes') || '[]'); // Cargar órdenes
+    const ordenesGuardadas = JSON.parse(localStorage.getItem('ordenes') || '[]');
     
     setCarrito(carritoGuardado);
     if (usuarioGuardado) setUsuario(usuarioGuardado);
     setOrdenes(ordenesGuardadas);
   }, []);
 
-  // --- PERSISTENCIA (Guardar cambios) ---
+  // 3. Persistencia local (Carrito y Órdenes)
   useEffect(() => { localStorage.setItem('carrito', JSON.stringify(carrito)); }, [carrito]);
-  
-  useEffect(() => { 
-    localStorage.setItem('ordenes', JSON.stringify(ordenes)); // Guardar órdenes
-  }, [ordenes]);
+  useEffect(() => { localStorage.setItem('ordenes', JSON.stringify(ordenes)); }, [ordenes]);
 
-  // --- LÓGICA DE USUARIO ---
+  // --- FUNCIONES ---
   const login = (datosUsuario) => {
     setUsuario(datosUsuario);
     localStorage.setItem('usuarioLogueado', JSON.stringify(datosUsuario));
@@ -63,28 +74,14 @@ function App() {
     window.location.href = "/";
   };
 
-  // --- LÓGICA DE PRODUCTOS (CRUD) ---
-  const agregarProducto = (nuevo) => {
-    const productoConId = { ...nuevo, id: Date.now() };
-    setProductos([...productos, productoConId]);
-  };
-
-  const editarProducto = (editado) => {
-    setProductos(productos.map(p => (p.id === editado.id ? editado : p)));
-  };
-
-  const eliminarProducto = (id) => {
-    setProductos(productos.filter(p => p.id !== id));
-  };
-
-  // --- LÓGICA DE CARRITO ---
   const agregarAlCarrito = (id) => {
     const producto = productos.find(p => p.id === id);
-    if (producto && producto.stock > 0) {
-      const { stock, ...prod } = producto; 
-      setCarrito(prev => [...prev, prod]); 
-    } else {
-      alert("Producto sin stock o no encontrado");
+    if (producto) {
+      if (producto.stock > 0) {
+        setCarrito(prev => [...prev, producto]); 
+      } else {
+        alert("Producto sin stock");
+      }
     }
   };
 
@@ -93,14 +90,13 @@ function App() {
     localStorage.removeItem('carrito');
   };
 
-  // --- LÓGICA DE ÓRDENES (NUEVO) ---
   const agregarOrden = (nuevaOrden) => {
-    setOrdenes(prev => [nuevaOrden, ...prev]); // Agrega la nueva orden al principio de la lista
+    setOrdenes(prev => [nuevaOrden, ...prev]);
   };
 
   return (
     <Routes>
-      {/* RUTAS PÚBLICAS */}
+      {/* --- RUTAS PÚBLICAS --- */}
       <Route path="/" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><HomePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
       <Route path="/productos" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><ProductosPage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
       <Route path="/producto/:id" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><ProductoDetallePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
@@ -109,28 +105,41 @@ function App() {
       <Route path="/registro" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><RegistroPage /><Footer /></>} />
       <Route path="/carrito" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><CarritoPage /><Footer /></>} />
       
-      {/* CHECKOUT: Ahora recibe 'agregarOrden' */}
       <Route path="/checkout" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><CheckoutPage carrito={carrito} vaciarCarrito={vaciarCarrito} usuario={usuario} agregarOrden={agregarOrden} /><Footer /></>} />
-      
       <Route path="/compra-exitosa" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><CompraExitosaPage /><Footer /></>} />
+      
       <Route path="/contacto" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><ContactoPage /><Footer /></>} />
       <Route path="/nosotros" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><NosotrosPage /><Footer /></>} />
       <Route path="/blogs" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><BlogsPage /><Footer /></>} />
 
-      {/* RUTAS ADMIN */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboardPage />} /> 
-        <Route path="dashboard" element={<AdminDashboardPage />} />
+      {/* --- RUTAS ADMIN PROTEGIDAS --- */}
+      {/* Aquí aplicamos el componente guardia ProtectedRoute */}
+      <Route element={<ProtectedRoute usuario={usuario} soloAdmin={true} />}>
         
-        {/* Productos */}
-        <Route path="productos" element={<AdminProductosPage productos={productos} eliminarProducto={eliminarProducto} />} />
-        <Route path="productos/nuevo" element={<AdminProductoFormPage productos={productos} agregarProducto={agregarProducto} />} />
-        <Route path="productos/editar/:id" element={<AdminProductoFormPage productos={productos} editarProducto={editarProducto} />} />
-        
-        {/* Órdenes (NUEVO) */}
-        <Route path="ordenes" element={<AdminOrdenesPage ordenes={ordenes} />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboardPage />} /> 
+          <Route path="dashboard" element={<AdminDashboardPage />} />
+          
+          <Route 
+            path="productos" 
+            element={<AdminProductosPage productos={productos} recargarProductos={cargarProductos} />} 
+          />
+          <Route 
+            path="productos/nuevo" 
+            element={<AdminProductoFormPage recargarProductos={cargarProductos} />} 
+          />
+          <Route 
+            path="productos/editar/:id" 
+            element={<AdminProductoFormPage recargarProductos={cargarProductos} />} 
+          />
+          
+          {/* Conectamos el estado real de órdenes */}
+          <Route path="ordenes" element={<AdminOrdenesPage ordenes={ordenes} />} />
+        </Route>
+
       </Route>
     </Routes>
   );
 }
+
 export default App;
