@@ -6,6 +6,7 @@ function NosotrosPage() {
     <div className="container mt-5">
       <div className="row align-items-center mb-5">
         <div className="col-lg-6">
+          {/* Imagen de ejemplo con placeholder externo */}
           <img 
             src="https://via.placeholder.com/600x400?text=Equipo+Level-Up" 
             alt="Equipo Level-Up" 
