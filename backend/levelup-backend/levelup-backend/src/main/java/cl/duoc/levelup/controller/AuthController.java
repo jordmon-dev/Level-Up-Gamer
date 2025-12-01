@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @Autowired
@@ -49,7 +49,7 @@ public class AuthController {
         usuario.setDireccion(registroDto.getDireccion());
         usuario.setRegion(registroDto.getRegion());
         usuario.setComuna(registroDto.getComuna());
-        usuario.setRol("USER"); // Por defecto todos son usuarios normales
+        usuario.setRol("CLIENTE"); // Por defecto todos son usuarios normales
 
         usuarioRepository.save(usuario);
 

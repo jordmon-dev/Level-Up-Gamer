@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import ProductoCard from '../components/ProductoCard';
+import ProductoCard from '../components/ProductoCard'; 
 
-// Recibimos 'productos' por props
+
+
 function ProductosPage({ productos, agregarAlCarrito }) {
   const [textoBusqueda, setTextoBusqueda] = useState('');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
@@ -20,9 +21,10 @@ function ProductosPage({ productos, agregarAlCarrito }) {
   return (
     <div className="container mt-5">
       <h1 className="text-center mb-4">Nuestros Productos</h1>
+      
       <div className="row mb-4">
         <div className="col-md-6">
-          <input type="text" className="form-control" placeholder="Buscar..." value={textoBusqueda} onChange={handleBusquedaChange} />
+          <input type="text" className="form-control" placeholder="Buscar productos..." value={textoBusqueda} onChange={handleBusquedaChange} />
         </div>
         <div className="col-md-6">
           <select className="form-select" value={categoriaSeleccionada} onChange={handleCategoriaChange}>
@@ -31,24 +33,23 @@ function ProductosPage({ productos, agregarAlCarrito }) {
           </select>
         </div>
       </div>
+
       <div className="row">
-        {productosFiltrados.map(p => (
-          // Pasamos la función agregarAlCarrito a la tarjeta
-          <div className="col-md-3 mb-4" key={p.id}>
-             {/* Usamos el componente ProductoCard existente, pero aseguramos pasar la función onClick */}
-             <div className="card h-100">
-                <img src={p.imagen.startsWith('http') ? p.imagen : `/${p.imagen}`} className="card-img-top" alt={p.nombre} onError={(e) => e.target.src='https://via.placeholder.com/300'} />
-                <div className="card-body">
-                  <h5 className="card-title">{p.nombre}</h5>
-                  <p className="text-muted">{p.categoria}</p>
-                  <p className="fw-bold">${p.precio.toLocaleString('es-CL')}</p>
-                  <button className="btn btn-primary w-100" onClick={() => agregarAlCarrito(p.id)}>Añadir</button>
-                </div>
-             </div>
-          </div>
-        ))}
+        {productosFiltrados.length > 0 ? (
+          productosFiltrados.map(p => (
+            // Usamos el componente ya conectado
+            <ProductoCard 
+              key={p.id} 
+              producto={p} 
+              agregarAlCarrito={agregarAlCarrito} 
+            />
+          ))
+        ) : (
+          <div className="col-12 text-center"><p>No se encontraron productos.</p></div>
+        )}
       </div>
     </div>
   );
 }
+
 export default ProductosPage;

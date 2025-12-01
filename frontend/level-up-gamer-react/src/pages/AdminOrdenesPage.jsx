@@ -5,7 +5,6 @@ function AdminOrdenesPage({ ordenes }) {
   return (
     <div className="container">
       <h2 className="mb-4">Historial de Órdenes</h2>
-      
       <div className="card shadow-sm">
         <div className="card-body">
           <div className="table-responsive">
@@ -17,7 +16,7 @@ function AdminOrdenesPage({ ordenes }) {
                   <th>Cliente</th>
                   <th>Total</th>
                   <th>Estado</th>
-                  <th>Detalles</th>
+                  <th>Resumen</th>
                 </tr>
               </thead>
               <tbody>
@@ -29,13 +28,13 @@ function AdminOrdenesPage({ ordenes }) {
                   </tr>
                 ) : (
                   ordenes.map((orden) => (
-                    <tr key={orden.orden}>
-                      <td><strong>#{orden.orden}</strong></td>
+                    <tr key={orden.id}> {/* Usamos id o numeroOrden como key */}
+                      <td><strong>#{orden.numeroOrden}</strong></td>
                       <td>{orden.fecha}</td>
                       <td>
-                        {orden.comprador.nombre} {orden.comprador.apellido}
+                        {orden.nombreCliente}
                         <br />
-                        <small className="text-muted">{orden.comprador.email}</small>
+                        <small className="text-muted">{orden.emailCliente}</small>
                       </td>
                       <td className="fw-bold text-success">
                         ${orden.total.toLocaleString('es-CL')}
@@ -44,11 +43,12 @@ function AdminOrdenesPage({ ordenes }) {
                         <span className="badge bg-success">Pagado</span>
                       </td>
                       <td>
+                        {/* Botón informativo simple para evitar errores */}
                         <button 
-                          className="btn btn-sm btn-info text-white"
-                          onClick={() => alert(`Productos:\n${orden.items.map(i => `- ${i.nombre} (x${i.cantidad || 1})`).join('\n')}`)}
+                          className="btn btn-sm btn-secondary text-white"
+                          onClick={() => alert(`Orden #${orden.numeroOrden}\nCliente: ${orden.nombreCliente}\nTotal: $${orden.total}`)}
                         >
-                          <i className="fas fa-eye me-1"></i> Ver Items
+                          <i className="fas fa-info-circle me-1"></i> Ver Info
                         </button>
                       </td>
                     </tr>

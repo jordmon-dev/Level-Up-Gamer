@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ordenes")
+@RequestMapping("/api/v1/ordenes")
 @CrossOrigin(origins = "http://localhost:5173")
 public class OrdenController {
 

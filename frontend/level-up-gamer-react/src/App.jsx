@@ -1,8 +1,6 @@
-// src/App.jsx
 import React, { useState, useEffect } from 'react'; 
 import { Routes, Route } from 'react-router-dom';
 
-// Imports Públicos
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -17,52 +15,63 @@ import ProductoDetallePage from './pages/ProductoDetallePage';
 import CheckoutPage from './pages/CheckoutPage';
 import CompraExitosaPage from './pages/CompraExitosaPage';
 
-// Imports de Seguridad y Admin
-import ProtectedRoute from './components/ProtectedRoute'; // <<-- IMPORTANTE
-import AdminLayout from './admin/components/AdminLayout';
-import AdminDashboardPage from './admin/pages/AdminDashboardPage';
-import AdminProductosPage from './admin/pages/AdminProductosPage';
-import AdminProductoFormPage from './admin/pages/AdminProductoFormPage';
-import AdminOrdenesPage from './admin/pages/AdminOrdenesPage';
+import ProtectedRoute from "./components/ProtectedRoute";
 
-// Servicio para cargar productos
+// Estas dos viven en src/admin/pages
+import AdminDashboardPage from "./admin/pages/AdminDashboardPage";
+import AdminProductosPage from "./admin/pages/AdminProductosPage";
+import AdminLayout from "./admin/components/AdminLayout";
+
+
+// Estas dos viven en src/pages
+import AdminProductoFormPage from "./pages/AdminProductoFormPage";
+import AdminOrdenesPage from "./pages/AdminOrdenesPage";
+
+
 import { getProducts } from './services/ProductService';
+import { getOrders } from './services/OrderService';
 
 function App() {
-  // --- ESTADOS GLOBALES ---
-  const [carrito, setCarrito] = useState([]);
+  const [carrito, setCarrito] = useState(() => {
+    try {
+      const guardado = localStorage.getItem('carrito');
+      return guardado ? JSON.parse(guardado) : [];
+    } catch (e) { return []; }
+  });
+
+  const [usuario, setUsuario] = useState(() => {
+    try {
+      const guardado = localStorage.getItem('usuarioLogueado');
+      return guardado ? JSON.parse(guardado) : null;
+    } catch (e) { return null; }
+  });
+
   const [productos, setProductos] = useState([]);
-  const [usuario, setUsuario] = useState(null);
   const [ordenes, setOrdenes] = useState([]);
 
-  // 1. Función para cargar productos desde el Backend
   const cargarProductos = async () => {
     try {
       const response = await getProducts();
       setProductos(response.data);
-    } catch (error) {
-      console.error("Error cargando productos:", error);
+    } catch (error) { console.error(error); }
+  };
+
+  const cargarOrdenes = async () => {
+    if (usuario && usuario.rol === 'ADMIN') {
+        try {
+          const response = await getOrders();
+          setOrdenes(response.data);
+        } catch (error) { console.error(error); }
     }
   };
 
-  // 2. Carga Inicial
   useEffect(() => {
-    cargarProductos(); // Carga productos de la BD real
+    cargarProductos();
+    cargarOrdenes();
+  }, [usuario]);
 
-    const carritoGuardado = JSON.parse(localStorage.getItem('carrito') || '[]');
-    const usuarioGuardado = JSON.parse(localStorage.getItem('usuarioLogueado'));
-    const ordenesGuardadas = JSON.parse(localStorage.getItem('ordenes') || '[]');
-    
-    setCarrito(carritoGuardado);
-    if (usuarioGuardado) setUsuario(usuarioGuardado);
-    setOrdenes(ordenesGuardadas);
-  }, []);
-
-  // 3. Persistencia local (Carrito y Órdenes)
   useEffect(() => { localStorage.setItem('carrito', JSON.stringify(carrito)); }, [carrito]);
-  useEffect(() => { localStorage.setItem('ordenes', JSON.stringify(ordenes)); }, [ordenes]);
 
-  // --- FUNCIONES ---
   const login = (datosUsuario) => {
     setUsuario(datosUsuario);
     localStorage.setItem('usuarioLogueado', JSON.stringify(datosUsuario));
@@ -76,13 +85,23 @@ function App() {
 
   const agregarAlCarrito = (id) => {
     const producto = productos.find(p => p.id === id);
-    if (producto) {
-      if (producto.stock > 0) {
-        setCarrito(prev => [...prev, producto]); 
-      } else {
+    if (producto && producto.stock > 0) {
+        const itemExistente = carrito.find(item => item.id === id);
+        if (itemExistente) {
+           setCarrito(prev => prev.map(item => item.id === id ? {...item, cantidad: (item.cantidad || 1) + 1} : item));
+        } else {
+           setCarrito(prev => [...prev, { ...producto, cantidad: 1 }]); 
+        }
+        alert("Producto agregado al carrito");
+    } else {
         alert("Producto sin stock");
-      }
     }
+  };
+
+  const eliminarDelCarrito = (id) => setCarrito(prev => prev.filter(item => item.id !== id));
+  
+  const actualizarCantidad = (id, cantidad) => {
+    setCarrito(prev => prev.map(item => item.id === id ? { ...item, cantidad: Math.max(1, cantidad) } : item));
   };
 
   const vaciarCarrito = () => {
@@ -90,56 +109,33 @@ function App() {
     localStorage.removeItem('carrito');
   };
 
-  const agregarOrden = (nuevaOrden) => {
-    setOrdenes(prev => [nuevaOrden, ...prev]);
-  };
+  const totalItems = carrito.reduce((a, c) => a + (c.cantidad || 1), 0);
 
   return (
     <Routes>
-      {/* --- RUTAS PÚBLICAS --- */}
-      <Route path="/" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><HomePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
-      <Route path="/productos" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><ProductosPage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
-      <Route path="/producto/:id" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><ProductoDetallePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
-      
-      <Route path="/login" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><LoginPage login={login} /><Footer /></>} />
-      <Route path="/registro" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><RegistroPage /><Footer /></>} />
-      <Route path="/carrito" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><CarritoPage /><Footer /></>} />
-      
-      <Route path="/checkout" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><CheckoutPage carrito={carrito} vaciarCarrito={vaciarCarrito} usuario={usuario} agregarOrden={agregarOrden} /><Footer /></>} />
-      <Route path="/compra-exitosa" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><CompraExitosaPage /><Footer /></>} />
-      
-      <Route path="/contacto" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><ContactoPage /><Footer /></>} />
-      <Route path="/nosotros" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><NosotrosPage /><Footer /></>} />
-      <Route path="/blogs" element={<><Navbar cantidadCarrito={carrito.length} usuario={usuario} logout={logout} /><BlogsPage /><Footer /></>} />
+      <Route path="/" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><HomePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
+      <Route path="/productos" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><ProductosPage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
+      <Route path="/producto/:id" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><ProductoDetallePage productos={productos} agregarAlCarrito={agregarAlCarrito} /><Footer /></>} />
+      <Route path="/login" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><LoginPage login={login} /><Footer /></>} />
+      <Route path="/registro" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><RegistroPage /><Footer /></>} />
+      <Route path="/carrito" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><CarritoPage carrito={carrito} eliminarDelCarrito={eliminarDelCarrito} actualizarCantidad={actualizarCantidad} /><Footer /></>} />
+      <Route path="/checkout" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><CheckoutPage carrito={carrito} vaciarCarrito={vaciarCarrito} usuario={usuario} /><Footer /></>} />
+      <Route path="/compra-exitosa" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><CompraExitosaPage /><Footer /></>} />
+      <Route path="/contacto" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><ContactoPage /><Footer /></>} />
+      <Route path="/nosotros" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><NosotrosPage /><Footer /></>} />
+      <Route path="/blogs" element={<><Navbar cantidadCarrito={totalItems} usuario={usuario} logout={logout} /><BlogsPage /><Footer /></>} />
 
-      {/* --- RUTAS ADMIN PROTEGIDAS --- */}
-      {/* Aquí aplicamos el componente guardia ProtectedRoute */}
       <Route element={<ProtectedRoute usuario={usuario} soloAdmin={true} />}>
-        
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboardPage />} /> 
-          <Route path="dashboard" element={<AdminDashboardPage />} />
-          
-          <Route 
-            path="productos" 
-            element={<AdminProductosPage productos={productos} recargarProductos={cargarProductos} />} 
-          />
-          <Route 
-            path="productos/nuevo" 
-            element={<AdminProductoFormPage recargarProductos={cargarProductos} />} 
-          />
-          <Route 
-            path="productos/editar/:id" 
-            element={<AdminProductoFormPage recargarProductos={cargarProductos} />} 
-          />
-          
-          {/* Conectamos el estado real de órdenes */}
+          <Route index element={<AdminDashboardPage productos={productos} ordenes={ordenes} />} /> 
+          <Route path="dashboard" element={<AdminDashboardPage productos={productos} ordenes={ordenes} />} />
+          <Route path="productos" element={<AdminProductosPage productos={productos} recargarProductos={cargarProductos} />} />
+          <Route path="productos/nuevo" element={<AdminProductoFormPage recargarProductos={cargarProductos} />} />
+          <Route path="productos/editar/:id" element={<AdminProductoFormPage recargarProductos={cargarProductos} />} />
           <Route path="ordenes" element={<AdminOrdenesPage ordenes={ordenes} />} />
         </Route>
-
       </Route>
     </Routes>
   );
 }
-
 export default App;

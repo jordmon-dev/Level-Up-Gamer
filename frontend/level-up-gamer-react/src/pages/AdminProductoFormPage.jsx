@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 // Importamos los servicios reales
-import { createProduct, updateProduct, getProductById } from '../../services/ProductService';
+import { createProduct, updateProduct, getProductById } from '../services/ProductService';
+
 
 function AdminProductoFormPage({ recargarProductos }) {
   const navigate = useNavigate();

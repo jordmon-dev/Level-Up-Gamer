@@ -1,23 +1,24 @@
+// src/admin/pages/AdminDashboardPage.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { productos } from '../../data'; // Para contar productos
 
-function AdminDashboardPage() {
-  // --- Datos de Ejemplo (reemplazar con datos reales más adelante) ---
-  const numeroCompras = 1234; // Ejemplo
-  const numeroProductos = productos.length; // Usamos la longitud del array importado
-  const numeroUsuarios = 890; // Ejemplo
+// Ahora recibimos los datos reales como 'props'
+function AdminDashboardPage({ productos, ordenes }) {
+  
+  // Usamos los datos reales para los contadores (si no hay datos, mostramos 0)
+  const numeroCompras = ordenes ? ordenes.length : 0;
+  const numeroProductos = productos ? productos.length : 0;
+  const numeroUsuarios = 1; // Este queda fijo por ahora (o podrías implementar cargarUsuarios si quisieras)
 
-  // --- Componente Reutilizable para Tarjetas de Resumen ---
-  const SummaryCard = ({ title, value, icon, bgColor, probability }) => (
-    <div className={`col-md-4 mb-4`}>
+  // Componente interno para las tarjetas de resumen
+  const SummaryCard = ({ title, value, icon, bgColor }) => (
+    <div className="col-md-4 mb-4">
       <div className={`card text-white shadow h-100 bg-${bgColor}`}>
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center">
             <div>
               <h5 className="card-title mb-0">{title}</h5>
               <p className="display-6 fw-bold">{value}</p>
-              {probability && <small>Probabilidad de acceso: {probability}%</small>}
             </div>
             <i className={`fas ${icon} fa-3x opacity-75`}></i>
           </div>
@@ -26,11 +27,11 @@ function AdminDashboardPage() {
     </div>
   );
 
-  // --- Componente Reutilizable para Tarjetas de Navegación ---
+  // Componente interno para los accesos directos
    const NavCard = ({ title, description, icon, linkTo }) => (
      <div className="col-lg-4 col-md-6 mb-4">
        <div className="card h-100 shadow-sm admin-nav-card">
-        <Link to={linkTo} className="text-decoration-none text-dark"> {/* Enlace en toda la tarjeta */}
+        <Link to={linkTo} className="text-decoration-none text-dark"> 
           <div className="card-body text-center">
             <i className={`fas ${icon} fa-3x mb-3 text-primary`}></i>
             <h5 className="card-title mb-2">{title}</h5>
@@ -44,75 +45,50 @@ function AdminDashboardPage() {
   return (
     <div>
       <h2 className="mb-4">Dashboard</h2>
-      <p className="text-muted mb-4">Resumen de las actividades diarias</p>
+      <p className="text-muted mb-4">Resumen de las actividades en tiempo real</p>
 
-      {/* Fila de Tarjetas de Resumen */}
+      {/* Tarjetas de Resumen con Datos Reales */}
       <div className="row">
         <SummaryCard 
-          title="Compras" 
+          title="Órdenes" 
           value={numeroCompras} 
           icon="fa-shopping-cart" 
-          bgColor="primary" // Corresponde al azul en Fig. 9
-          probability={20} // Como en Fig. 9
+          bgColor="primary" 
         />
         <SummaryCard 
           title="Productos" 
           value={numeroProductos} 
           icon="fa-box" 
-          bgColor="success" // Corresponde al verde en Fig. 9
+          bgColor="success" 
         />
         <SummaryCard 
           title="Usuarios" 
           value={numeroUsuarios} 
           icon="fa-users" 
-          bgColor="warning" // Corresponde al amarillo en Fig. 9
+          bgColor="warning" 
         />
       </div>
 
-      {/* Fila de Tarjetas de Navegación */}
+      {/* Accesos Directos */}
       <h3 className="mt-5 mb-4">Accesos Directos</h3>
        <div className="row">
          <NavCard 
-           title="Órdenes" 
-           description="Gestión y seguimiento de todas las órdenes de compra realizadas."
+           title="Gestión de Órdenes" 
+           description="Revisa el historial de compras realizadas por los clientes."
            icon="fa-file-invoice" 
-           linkTo="/admin/ordenes" // Enlace a la sección correspondiente
+           linkTo="/admin/ordenes" 
          />
           <NavCard 
-           title="Productos" 
-           description="Administrar inventario y detalles de los productos disponibles."
+           title="Gestión de Productos" 
+           description="Añade, edita o elimina productos del catálogo."
            icon="fa-box" 
            linkTo="/admin/productos"
          />
           <NavCard 
-           title="Categorías" 
-           description="Organizar productos en categorías para facilitar la navegación."
-           icon="fa-tags" 
-           linkTo="/admin/categorias"
-         />
-          <NavCard 
-           title="Usuarios" 
-           description="Gestión de cuentas de usuario y sus roles dentro del sistema."
-           icon="fa-users" 
-           linkTo="/admin/usuarios"
-         />
-          {/* <NavCard 
-           title="Reportes" 
-           description="Generación de informes detallados sobre las operaciones del sistema."
-           icon="fa-chart-line" 
-           linkTo="/admin/reportes"
-         /> */}
-         {/* <NavCard 
-           title="Perfil" 
-           description="Administración de la información personal y configuraciones de cuenta."
-           icon="fa-user-cog" 
-           linkTo="/admin/perfil"
-         /> */}
-          <NavCard 
-           title="Tienda" 
-           description="Visualizar tu tienda en tiempo real, visualizar los reportes en tiempo."
+           title="Ver Tienda" 
+           description="Ir a la página principal como la vería un cliente."
            icon="fa-store" 
-           linkTo="/" // Enlace a la tienda pública
+           linkTo="/" 
          />
        </div>
     </div>

@@ -1,75 +1,171 @@
-/* Estilos personalizados para Level-Up Gamer */
+/* src/styles.css - Diseño Moderno Cyberpunk */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+
 :root {
-  --color-primary: #1E90FF;   /* Azul eléctrico */
-  --color-accent: #39FF14;    /* Verde neón */
-  --color-dark: #000000;      /* Negro */
-  --color-light: #FFFFFF;     /* Blanco */
-  --color-gray: #D3D3D3;      /* Gris claro */
+  /* Paleta de Colores Moderna */
+  --bg-dark: #0a0a0f;
+  --bg-card: rgba(25, 25, 35, 0.7); /* Semi-transparente */
+  --primary: #00f2ea;    /* Cyan Neon */
+  --secondary: #ff0050;  /* Pink Neon */
+  --accent: #39ff14;     /* Green Neon */
+  --text-main: #ffffff;
+  --text-muted: #a0a0b0;
+  
+  /* Efectos */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --backdrop-blur: blur(12px);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
-  padding-top: 80px; /* Para compensar el navbar fijo */
-  background-color: var(--color-dark);
-  color: var(--color-light);
+  font-family: 'Rajdhani', sans-serif; /* Fuente más técnica y limpia */
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(0, 242, 234, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(255, 0, 80, 0.08) 0%, transparent 25%);
+  color: var(--text-main);
+  padding-top: 90px;
+  min-height: 100vh;
 }
 
-h1, h2, h3, h4, h5, h6 {
+/* Títulos Gamer */
+h1, h2, h3, h4, h5, .navbar-brand, .card-title {
   font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* --- NAVBAR CON EFECTO CRISTAL --- */
+.navbar {
+  background: rgba(10, 10, 15, 0.85) !important; /* Fondo semi-transparente */
+  backdrop-filter: var(--backdrop-blur);
+  border-bottom: var(--glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  padding: 1rem 0;
 }
 
 .navbar-brand {
-  font-family: 'Orbitron', sans-serif;
-  color: var(--color-accent) !important;
+  color: var(--primary) !important;
+  text-shadow: 0 0 10px rgba(0, 242, 234, 0.5);
 }
 
-.btn-primary {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+.nav-link {
+  color: var(--text-main) !important;
+  font-weight: 500;
+  position: relative;
+  transition: var(--transition);
 }
 
-.btn-primary:hover {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-dark);
+.nav-link:hover, .nav-link.active {
+  color: var(--primary) !important;
+  text-shadow: 0 0 8px rgba(0, 242, 234, 0.6);
 }
 
+/* --- TARJETAS MODERNAS (Glassmorphism) --- */
 .card {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  color: var(--color-light);
+  background: var(--bg-card);
+  backdrop-filter: blur(5px);
+  border: var(--glass-border);
+  border-radius: 16px;
+  color: var(--text-main);
+  overflow: hidden;
+  transition: var(--transition);
 }
 
-.card-title {
-  color: var(--color-accent);
+/* Efecto Hover en Tarjetas */
+.product-card:hover, .admin-nav-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border-color: var(--primary);
 }
 
-.price {
-  color: var(--color-primary);
-  font-weight: bold;
+.card-img-top {
+  border-bottom: var(--glass-border);
+  transition: var(--transition);
 }
 
-/* Estilos para las cards del blog */
-.blog-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #333;
+.card-body {
+  padding: 1.5rem;
 }
 
-.blog-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(30, 144, 255, 0.15);
+.card-text.text-muted {
+  color: var(--text-muted) !important;
 }
 
-.blog-card .card-img-top {
-  height: 200px;
-  object-fit: cover;
-}
-
-.blog-card .card-title {
-  color: var(--color-accent);
+/* --- BOTONES FUTURISTAS --- */
+.btn-primary {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
   font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  transition: var(--transition);
+  box-shadow: 0 0 10px rgba(0, 242, 234, 0.1);
 }
 
-.blog-card .badge {
-  font-size: 0.8em;
+.btn-primary:hover, .btn-primary:active, .btn-primary:focus {
+  background: var(--primary);
+  color: #000;
+  border-color: var(--primary);
+  box-shadow: 0 0 20px rgba(0, 242, 234, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-muted);
+}
+
+.btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: #fff;
+}
+
+/* --- PRECIOS --- */
+.price {
+  color: var(--secondary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(255, 0, 80, 0.3);
+}
+
+/* --- FORMULARIOS (Inputs oscuros) --- */
+.form-control, .form-select {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.8rem;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(0, 242, 234, 0.15);
+  color: #fff;
+}
+
+/* --- BADGES --- */
+.badge {
+  padding: 0.5em 0.8em;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+.bg-danger {
+  background-color: var(--secondary) !important;
+  box-shadow: 0 0 10px rgba(255, 0, 80, 0.4);
+}
+
+/* --- ADMIN SIDEBAR --- */
+.admin-sidebar {
+  background-color: var(--bg-dark);
+  border-right: 1px solid #1a1a25;
+}
+.admin-main-content {
+  background-color: #1a1a1f;
+  color: var(--text-main);
 }

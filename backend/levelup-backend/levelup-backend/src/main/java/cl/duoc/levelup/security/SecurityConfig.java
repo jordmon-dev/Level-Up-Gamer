@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration; // Importante para CORS
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import org.springframework.http.HttpMethod;
 import java.util.List;
 
 @Configuration
@@ -32,26 +32,42 @@ public class SecurityConfig {
 
     // 1. Configuración de seguridad HTTP
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para APIs
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Configuración CORS explícita
-            .authorizeHttpRequests(auth -> auth
-                // Rutas Públicas (Cualquiera puede entrar)
-                .requestMatchers("/auth/**").permitAll() // Login y Registro
-                .requestMatchers("/api/productos/**").permitAll() // Ver productos (por ahora público)
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                // Todo lo demás requiere autenticación
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(sess -> sess
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Sin estado (JWT)
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para APIs
+        .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS para el frontend
+        .authorizeHttpRequests(auth -> auth
+            // Rutas públicas
+            .requestMatchers("/api/v1/auth/**").permitAll()
+            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-        return http.build();
-    }
+            // ---------- PRODUCTOS ----------
+            // Cualquiera puede ver el catálogo
+            .requestMatchers(HttpMethod.GET, "/api/v1/productos/**").permitAll()
+            // Solo ADMIN puede crear / editar / eliminar productos
+            .requestMatchers(HttpMethod.POST, "/api/v1/productos/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.PUT, "/api/v1/productos/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.DELETE, "/api/v1/productos/**").hasRole("ADMIN")
+
+            // ---------- ÓRDENES ----------
+            // Crear orden (checkout): lo dejamos abierto para que funcione tu flujo actual
+            // Si luego quieres obligar login, aquí puedes cambiar a .authenticated()
+            .requestMatchers(HttpMethod.POST, "/api/v1/ordenes/**").permitAll()
+            // Ver órdenes: solo ADMIN o VENDEDOR
+            .requestMatchers(HttpMethod.GET, "/api/v1/ordenes/**").hasAnyRole("ADMIN", "VENDEDOR")
+
+            // Cualquier otra ruta requiere estar autenticado
+            .anyRequest().authenticated()
+        )
+        .sessionManagement(sess -> sess
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT sin sesión
+        )
+        .authenticationProvider(authenticationProvider())
+        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
+
 
     // 2. Encriptador de contraseñas
     @Bean
