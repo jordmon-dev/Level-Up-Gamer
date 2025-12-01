@@ -26,7 +26,7 @@ import AdminLayout from "./admin/components/AdminLayout";
 // Estas dos viven en src/pages
 import AdminProductoFormPage from "./pages/AdminProductoFormPage";
 import AdminOrdenesPage from "./pages/AdminOrdenesPage";
-
+  
 
 import { getProducts } from './services/ProductService';
 import { getOrders } from './services/OrderService';

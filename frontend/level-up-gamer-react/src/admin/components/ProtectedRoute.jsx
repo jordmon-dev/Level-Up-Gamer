@@ -18,6 +18,6 @@ const ProtectedRoute = ({ usuario, soloAdmin = false }) => {
 
   // 3. Si pasa las validaciones, mostrar el contenido
   return <Outlet />;
-};
+};  
 
 export default ProtectedRoute;
